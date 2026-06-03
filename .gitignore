@@ -13,6 +13,7 @@ ENV/
 .env
 .env.local
 .env.*
+!.env.example
 
 # Local SQLite databases
 *.db
