@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>She Can Foundation | Empowering Women & Girls</title>
+    <!-- We will use Times New Roman as requested, falling back to Georgia/Serif -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="light-mode">
+    <header class="header">
+        <div class="header-container">
+            <h1 class="logo">SHE CAN FOUNDATION</h1>
+            <nav class="nav">
+                <a href="#about" class="nav-link">About Us</a>
+                <a href="#initiatives" class="nav-link">Initiatives</a>
+                <a href="#contact" class="nav-link">Contact</a>
+                <a href="/admin" class="nav-link admin-btn">[ Admin Portal ]</a>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode">[ Dark Mode ]</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-text">
+                <p class="hero-subtitle">ESTABLISHED FOR SOCIAL CHANGE</p>
+                <h2 class="hero-title">Empowering Underprivileged Women and Girls to Shape the Future.</h2>
+                <p class="hero-description">
+                    The She Can Foundation is a registered non-governmental organization in India working tirelessly to create a more equitable society. Through education, hygiene awareness, skill development, and active advocacy, we dismantle the socio-economic barriers that limit women from achieving their highest potential.
+                </p>
+                <a href="#contact" class="btn btn-primary">Join Our Cause</a>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="section-header">
+                <span class="section-number">01 /</span>
+                <h3 class="section-title">WHO WE ARE</h3>
+            </div>
+            <div class="grid-2-col">
+                <div>
+                    <h4 class="editorial-heading">A Vision of Equitable Opportunities</h4>
+                    <p class="editorial-body">
+                        We believe in a world where every woman has the resources, skills, and support system to thrive. By focusing on practical interventions, we empower women to become self-reliant, breaking cycles of poverty and gender inequality in their communities.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="editorial-heading">A Mission of Collaborative Action</h4>
+                    <p class="editorial-body">
+                        Our programs are designed in collaboration with local communities, ensuring sustainable impact. From distributing hygiene kits to providing job training, we believe that empowering a woman transforms entire generations.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- Initiatives Section -->
+        <section id="initiatives" class="initiatives-section">
+            <div class="section-header">
+                <span class="section-number">02 /</span>
+                <h3 class="section-title">OUR PILLARS OF IMPACT</h3>
+            </div>
+            <div class="grid-3-col">
+                <div class="card">
+                    <h4 class="card-title">I. Menstrual Hygiene & Health</h4>
+                    <p class="card-body">
+                        Breaking taboos by facilitating educational workshops and distributing sanitary napkins to young girls in rural schools and marginalized urban areas.
+                    </p>
+                </div>
+                <div class="card">
+                    <h4 class="card-title">II. Education & Skill Training</h4>
+                    <p class="card-body">
+                        Offering computer literacy, vocational courses, and financial training programs designed to secure economic independence for underprivileged women.
+                    </p>
+                </div>
+                <div class="card">
+                    <h4 class="card-title">III. Advocacy & Leadership</h4>
+                    <p class="card-body">
+                        Conducting awareness campaigns on women's legal rights, domestic violence prevention, and leadership mentorship for rising young leaders.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <hr class="section-divider">
+
+        <!-- Contact Section / Form -->
+        <section id="contact" class="contact-section">
+            <div class="section-header">
+                <span class="section-number">03 /</span>
+                <h3 class="section-title">GET IN TOUCH</h3>
+            </div>
+            <div class="grid-2-col">
+                <div class="contact-info">
+                    <h4 class="editorial-heading">Reach Out to Us</h4>
+                    <p class="editorial-body">
+                        Have questions about our volunteer programs, donation drives, or internships? Fill out the contact form, and our leadership team will reach back to you shortly.
+                    </p>
+                    <div class="contact-details">
+                        <p><strong>General Inquiry:</strong> president@shecanfoundation.org</p>
+                        <p><strong>Registered Office:</strong> New Delhi, India</p>
+                        <p><strong>Registration No:</strong> Under the Indian Societies Registration Act of 1860</p>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <h4 class="form-heading">Message Form</h4>
+                    
+                    <!-- Alert Banners -->
+                    <div id="form-success" class="alert alert-success hidden">
+                        <span class="alert-icon">✓</span>
+                        <p class="alert-text">Form Submitted Successfully</p>
+                    </div>
+                    
+                    <div id="form-error-general" class="alert alert-error hidden">
+                        <span class="alert-icon">✗</span>
+                        <p id="error-general-text" class="alert-text">An error occurred. Please try again.</p>
+                    </div>
+
+                    <form id="contact-form" novalidate>
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" placeholder="e.g. Jane Doe" required>
+                            <span class="error-msg" id="name-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="e.g. jane@example.com" required>
+                            <span class="error-msg" id="email-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Your Message</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Share how you want to connect or contribute..." required></textarea>
+                            <span class="error-msg" id="message-error"></span>
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="btn btn-submit">
+                            <span id="submit-btn-text">Submit Message</span>
+                            <span id="submit-loader" class="loader hidden"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 She Can Foundation. All rights reserved.</p>
+            <p class="footer-note">Built for the Social Impact Internship Evaluation.</p>
+        </div>
+    </footer>
+
+    <!-- Form & Theme Logic -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

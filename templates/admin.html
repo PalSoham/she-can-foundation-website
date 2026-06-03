@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | She Can Foundation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="light-mode">
+    <header class="header">
+        <div class="header-container">
+            <h1 class="logo"><a href="/" style="text-decoration: none; color: inherit;">SHE CAN FOUNDATION</a></h1>
+            <nav class="nav">
+                <a href="/" class="nav-link">&larr; Back to Site</a>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode">[ Dark Mode ]</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Login View -->
+        <section id="admin-login-sec" class="admin-section">
+            <div class="form-card-centered">
+                <h2 class="admin-title">ADMIN PORTAL LOGIN</h2>
+                <p class="admin-subtitle">Access message logs and submission records.</p>
+                
+                <div id="login-error" class="alert alert-error hidden">
+                    <span class="alert-icon">✗</span>
+                    <p id="login-error-text" class="alert-text">Invalid username or password.</p>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" placeholder="e.g. admin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Login</button>
+                </form>
+                
+                <div class="login-footer">
+                    <p class="footer-note">Default Credentials: <code>admin</code> / <code>admin123</code></p>
+                    <p class="footer-note">Modify these in the <code>.env</code> file under <code>ADMIN_USER</code> and <code>ADMIN_PASS</code>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Submissions View -->
+        <section id="admin-dashboard-sec" class="admin-section hidden">
+            <div class="dashboard-header">
+                <div>
+                    <h2 class="admin-title">SUBMISSION DASHBOARD</h2>
+                    <p class="admin-subtitle">Manage messages received through the contact form.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <button id="refresh-btn" class="btn btn-secondary">Refresh Data</button>
+                    <button id="logout-btn" class="btn btn-danger">Logout</button>
+                </div>
+            </div>
+
+            <!-- Database Status Indicator -->
+            <div class="db-status-bar">
+                <span class="status-indicator-dot"></span>
+                <span class="db-status-text">Database Connection: <strong id="db-type-label">Loading...</strong></span>
+            </div>
+
+            <div class="table-container">
+                <table id="submissions-table" class="submissions-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%">ID</th>
+                            <th style="width: 20%">Date</th>
+                            <th style="width: 22%">Name</th>
+                            <th style="width: 25%">Email Address</th>
+                            <th style="width: 25%">Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissions-list">
+                        <!-- Dynamic content filled by JavaScript -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">Loading submissions...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 She Can Foundation. Admin Panel.</p>
+        </div>
+    </footer>
+
+    <!-- Admin Logic -->
+    <script>
+        // Inline Javascript specifically for Admin dashboard management
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginSec = document.getElementById("admin-login-sec");
+            const dashboardSec = document.getElementById("admin-dashboard-sec");
+            const loginForm = document.getElementById("login-form");
+            const loginError = document.getElementById("login-error");
+            const loginErrorText = document.getElementById("login-error-text");
+            const submissionsList = document.getElementById("submissions-list");
+            const dbTypeLabel = document.getElementById("db-type-label");
+            
+            const usernameInput = document.getElementById("username");
+            const passwordInput = document.getElementById("password");
+            const refreshBtn = document.getElementById("refresh-btn");
+            const logoutBtn = document.getElementById("logout-btn");
+            
+            // Check existing login token
+            const token = localStorage.getItem("admin_token");
+            if (token) {
+                showDashboard();
+            }
+
+            // Theme toggle helper
+            const body = document.body;
+            const themeToggleBtn = document.getElementById("theme-toggle");
+            
+            const savedTheme = localStorage.getItem("theme") || "light";
+            if (savedTheme === "dark") {
+                body.classList.remove("light-mode");
+                body.classList.add("dark-mode");
+                themeToggleBtn.textContent = "[ Light Mode ]";
+            } else {
+                body.classList.remove("dark-mode");
+                body.classList.add("light-mode");
+                themeToggleBtn.textContent = "[ Dark Mode ]";
+            }
+
+            themeToggleBtn.addEventListener("click", () => {
+                if (body.classList.contains("light-mode")) {
+                    body.classList.remove("light-mode");
+                    body.classList.add("dark-mode");
+                    themeToggleBtn.textContent = "[ Light Mode ]";
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    body.classList.remove("dark-mode");
+                    body.classList.add("light-mode");
+                    themeToggleBtn.textContent = "[ Dark Mode ]";
+                    localStorage.setItem("theme", "light");
+                }
+            });
+
+            // Login execution
+            loginForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                loginError.classList.add("hidden");
+                
+                const username = usernameInput.value;
+                const password = passwordInput.value;
+                
+                try {
+                    const response = await fetch("/api/admin/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        localStorage.setItem("admin_token", result.token);
+                        showDashboard();
+                    } else {
+                        loginErrorText.textContent = result.error || "Login failed.";
+                        loginError.classList.remove("hidden");
+                    }
+                } catch (err) {
+                    loginErrorText.textContent = "Network error. Make sure the server is running.";
+                    loginError.classList.remove("hidden");
+                }
+            });
+
+            // Logout execution
+            logoutBtn.addEventListener("click", () => {
+                localStorage.removeItem("admin_token");
+                window.location.reload();
+            });
+
+            // Refresh execution
+            refreshBtn.addEventListener("click", fetchSubmissions);
+
+            function showDashboard() {
+                loginSec.classList.add("hidden");
+                dashboardSec.classList.remove("hidden");
+                fetchSubmissions();
+            }
+
+            async function fetchSubmissions() {
+                const authToken = localStorage.getItem("admin_token");
+                if (!authToken) return;
+                
+                try {
+                    const response = await fetch("/api/admin/submissions", {
+                        method: "GET",
+                        headers: {
+                            "Authorization": `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        // Display DB connection source
+                        dbTypeLabel.textContent = result.db_used.toUpperCase();
+                        dbTypeLabel.style.color = result.db_used === 'tidb' ? '#2e7d32' : '#d84315';
+                        
+                        renderTable(result.submissions);
+                    } else {
+                        // Token invalid or expired
+                        localStorage.removeItem("admin_token");
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    submissionsList.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--error-color); padding: 2rem;">
+                                Failed to connect to server to fetch submissions.
+                            </td>
+                        </tr>
+                    `;
+                }
+            }
+
+            function renderTable(submissions) {
+                if (submissions.length === 0) {
+                    submissionsList.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-color); opacity: 0.6;">
+                                No message submissions found.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                submissionsList.innerHTML = submissions.map(sub => {
+                    // format date nicely
+                    const date = new Date(sub.created_at).toLocaleString();
+                    return `
+                        <tr>
+                            <td>${sub.id}</td>
+                            <td>${date}</td>
+                            <td class="font-bold">${escapeHTML(sub.name)}</td>
+                            <td><a href="mailto:${escapeHTML(sub.email)}" style="color: inherit;">${escapeHTML(sub.email)}</a></td>
+                            <td class="cell-message">${escapeHTML(sub.message)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            function escapeHTML(str) {
+                return str.replace(/[&<>'"]/g, 
+                    tag => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        "'": '&#39;',
+                        '"': '&quot;'
+                    }[tag] || tag)
+                );
+            }
+        });
+    </script>
+</body>
+</html>
